@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"exmpale.com/event-booking/models"
+	"exmpale.com/event-booking/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -46,16 +47,24 @@ func createEvent(context *gin.Context) {
 		return
 	}
 
+	uID, err := utils.VerifyToken(token)
+
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Not authorized"})
+	}
+
 	var event models.Event
-	err := context.ShouldBindJSON(&event)
+	err = context.ShouldBindJSON(&event)
 
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not create event"})
 		return
 	}
 
-	event.ID = 1
-	event.UserID = 1
+	// event.ID = 1
+
+	event.UserID = uID
+	// event.UserID = 1
 
 	err = event.Save()
 
